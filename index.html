@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Laporan Pemantauan PdP 2026 — JTMK PUO</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; background: #eef1f6; color: #1f2328; }
+
+/* ── HEADER ── */
+.header {
+  background: linear-gradient(135deg, #0d2f55 0%, #1F4E79 60%, #2E75B6 100%);
+  color: #fff; padding: 22px 32px 18px;
+  border-bottom: 4px solid #2E75B6;
+  text-align: center;
+}
+.header h1 { font-size: 19px; font-weight: 700; letter-spacing: .3px; }
+.header p  { font-size: 12px; opacity: .82; margin-top: 6px; }
+
+/* ── NAV BAR ── */
+.nav-bar {
+  position: sticky; top: 0; z-index: 100;
+  background: linear-gradient(90deg, #1a3a4a 0%, #1d5c4a 100%);
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 4px;
+  padding: 8px 18px;
+  box-shadow: 0 3px 10px rgba(0,0,0,.3);
+}
+.nav-btn {
+  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18);
+  border-radius: 20px; cursor: pointer;
+  color: rgba(255,255,255,.82); font-size: 12px; font-weight: 600;
+  padding: 7px 18px; letter-spacing: .2px;
+  transition: background .18s, color .18s, border-color .18s;
+  white-space: nowrap;
+}
+.nav-btn:hover { background: rgba(255,255,255,.22); color: #fff; border-color: rgba(255,255,255,.4); }
+.nav-btn.active { background: #e8a020; color: #fff; border-color: #e8a020; }
+
+/* ── WRAPPER ── */
+.container { max-width: 1320px; margin: 0 auto; padding: 22px 22px 50px; }
+
+/* ── SECTION PANEL (always visible) ── */
+.section-panel { display: block; }
+
+/* ── SECTION TITLES ── */
+.section-title {
+  font-size: 12.5px; font-weight: 700; color: #fff;
+  background: linear-gradient(90deg,#1F4E79,#2E75B6);
+  padding: 7px 14px; border-radius: 5px;
+  margin: 24px 0 12px; letter-spacing: .4px;
+}
+
+/* ── KPI CARDS ── */
+.kpi-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 14px; }
+.kpi-card {
+  border-radius: 10px; padding: 18px 16px 15px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.12);
+  position: relative; overflow: hidden;
+}
+.kpi-card::before {
+  content:''; position:absolute; top:-20px; right:-20px;
+  width:80px; height:80px; border-radius:50%;
+  background: rgba(255,255,255,.12);
+}
+.kpi-card.blue   { background: linear-gradient(135deg,#1F4E79,#2E75B6); color:#fff; }
+.kpi-card.green  { background: linear-gradient(135deg,#1a5c2a,#375623); color:#fff; }  
+.kpi-card.teal   { background: linear-gradient(135deg,#006d6d,#00897b); color:#fff; }
+.kpi-card.orange { background: linear-gradient(135deg,#843C0C,#ED7D31); color:#fff; }
+.kpi-card.red    { background: linear-gradient(135deg,#7b0000,#C00000); color:#fff; }
+.kpi-card .kpi-val   { font-size: 36px; font-weight: 800; line-height: 1; color:#fff; }
+.kpi-card .kpi-label { font-size: 11px; opacity: .88; margin-top: 7px; line-height: 1.45; }
+.kpi-card .kpi-sub   { font-size: 10.5px; opacity:.7; margin-top:4px; }
+
+/* ── CARD WRAPPER ── */
+.card {
+  background: #fff; border-radius: 10px;
+  padding: 18px; box-shadow: 0 2px 6px rgba(0,0,0,.08);
+}
+.card-title {
+  font-size: 12.5px; font-weight: 700; color: #1F4E79;
+  margin-bottom: 12px; padding-bottom: 8px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+/* ── TABLES ── */
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th {
+  background: #1F4E79; color: #fff;
+  padding: 8px 10px; text-align: center;
+  font-weight: 600; font-size: 11px;
+}
+th.left { text-align: left; }
+td { padding: 7px 10px; border-bottom: 1px solid #edf0f3; text-align: center; }
+td.left { text-align: left; }
+tr:last-child td { border-bottom: none; }
+tr:nth-child(even) td { background: #f7f9fc; }
+tr:hover td { background: #eef3fa !important; }
+.tbl-foot td {
+  background: #dbe8f5 !important; font-weight: 700;
+  color: #1F4E79; border-top: 2px solid #2E75B6; border-bottom: none;
+}
+
+/* ── CELL COLORS ── */
+.cell-good   { background: #d6f0cd !important; color: #1a5c2a; font-weight: 600; }
+.cell-warn   { background: #fde8d8 !important; color: #843C0C; font-weight: 600; }
+.cell-danger { background: #ffd5d5 !important; color: #7b0000; font-weight: 700; }
+
+/* ── BADGE ── */
+.badge { display:inline-block; padding:2px 9px; border-radius:10px; font-size:10px; font-weight:700; }
+.badge-good   { background:#d6f0cd; color:#1a5c2a; }
+.badge-follow { background:#fde8d8; color:#843C0C; }
+
+/* ── ALERT CARDS ── */
+.alert-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(165px,1fr)); gap:10px; margin-bottom:14px; }
+.alert-card {
+  border-radius: 8px; padding: 13px 15px;
+  box-shadow: 0 2px 5px rgba(0,0,0,.1);
+}
+.alert-card.red    { background: linear-gradient(135deg,#7b0000,#C00000); color:#fff; }
+.alert-card.orange { background: linear-gradient(135deg,#843C0C,#ED7D31); color:#fff; }
+.alert-card .a-val   { font-size: 28px; font-weight: 800; line-height:1; }
+.alert-card .a-label { font-size: 10.5px; opacity:.88; margin-top:5px; line-height:1.4; }
+
+/* ── SEARCH ── */
+.search-wrap { margin-bottom: 11px; }
+.search-wrap input {
+  width:100%; max-width:400px; padding:8px 13px;
+  border:1.5px solid #c8d4e0; border-radius:7px;
+  font-size:12px; outline:none; background:#f7f9fc;
+}
+.search-wrap input:focus { border-color:#2E75B6; background:#fff; }
+
+/* ── DOMAIN CHART CONTAINER ── */
+.domain-chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+.donut-row { display: flex; flex-wrap: wrap; gap: 18px; justify-content: center; padding: 10px 0; }
+.donut-item { text-align: center; }
+.donut-item svg { display: block; margin: 0 auto 6px; }
+.donut-label { font-size: 11px; font-weight: 700; color: #1F4E79; margin-bottom: 3px; }
+.donut-sub { font-size: 10px; color: #57606a; }
+
+/* ── RADAR SVG ── */
+.radar-wrap { display:flex; justify-content:center; padding:8px 0; }
+
+/* ── SCROLL ── */
+.tbl-scroll { overflow-x: auto; }
+
+@media(max-width:900px){
+  .kpi-grid { grid-template-columns: repeat(3,1fr); }
+  .domain-chart-grid { grid-template-columns: 1fr; }
+}
+@media(max-width:500px){ .kpi-grid { grid-template-columns: 1fr 1fr; } }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <h1>Dashboard Laporan Pemantauan Pembelajaran dan Pengajaran (PdP)</h1>
+  <p>Jabatan Teknologi Maklumat dan Komunikasi (JTMK) &nbsp;|&nbsp; Politeknik Ungku Omar, Ipoh &nbsp;|&nbsp; Tahun: 2026</p>
+</div>
+
+<!-- NAV BAR -->
+<nav class="nav-bar">
+  <button class="nav-btn active" onclick="jumpTo('panel-ringkasan',this)">Ringkasan</button>
+  <button class="nav-btn" onclick="jumpTo('panel-bahagianAB',this)">Statistik Pensyarah</button>
+  <button class="nav-btn" onclick="jumpTo('panel-bahagianC',this)">Analisis Domain</button>
+  <button class="nav-btn" onclick="jumpTo('panel-perhatian',this)">Perhatian &lt;70%</button>
+  <button class="nav-btn" onclick="jumpTo('panel-bahagianE',this)">Senarai Lengkap</button>
+</nav>
+
+<div class="container">
+
+<!-- ══ PANEL 1: RINGKASAN KPI ══ -->
+<div class="section-panel active" id="panel-ringkasan">
+<div class="section-title">&#9679; Ringkasan Pemantauan</div>
+<div class="kpi-grid">
+  <div class="kpi-card blue">
+    <div class="kpi-val">54</div>
+    <div class="kpi-label">Jumlah Pensyarah</div>
+    <div class="kpi-sub">JTMK, PUO</div>
+  </div>
+  <div class="kpi-card green">
+    <div class="kpi-val">54</div>
+    <div class="kpi-label">Pensyarah Dipantau</div>
+    <div class="kpi-sub">100% selesai</div>
+  </div>
+  <div class="kpi-card teal">
+    <div class="kpi-val">25</div>
+    <div class="kpi-label">Pegawai Pemantau</div>
+    <div class="kpi-sub">Gred 13, 12 &amp; 10</div>
+  </div>
+  <div class="kpi-card orange">
+    <div class="kpi-val" id="kpiBelow80">—</div>
+    <div class="kpi-label">Pensyarah Skor &lt; 80%</div>
+    <div class="kpi-sub">Perlu pemantauan susulan</div>
+  </div>
+  <div class="kpi-card red">
+    <div class="kpi-val" id="kpiBelow70">—</div>
+    <div class="kpi-label">Pensyarah Skor &lt; 70%</div>
+    <div class="kpi-sub">Pada mana-mana domain</div>
+  </div>
+</div>
+</div><!-- /panel-ringkasan -->
+
+<!-- ══ PANEL 2: BAHAGIAN A & B ══ -->
+<div class="section-panel" id="panel-bahagianAB">
+<div class="section-title">&#9679; Bahagian A &amp; B — Statistik Pensyarah dan Pegawai Pemantau</div>
+<div class="card">
+  <div class="card-title">Matriks Pemantau vs Pensyarah — Keseluruhan Gred</div>
+  <div class="tbl-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th rowspan="2" class="left" style="min-width:140px">Gred</th>
+          <th colspan="4" style="background:#1a5c2a">Komposisi Pensyarah (Bahagian A)</th>
+          <th colspan="1" style="background:#006d6d; border-left:2px solid #fff">Pegawai Pemantau (Bahagian B)</th>
+        </tr>
+        <tr>
+          <th style="background:#2d7a42">Kategori I</th>
+          <th style="background:#2d7a42">Kategori II</th>
+          <th style="background:#2d7a42">Kategori III</th>
+          <th style="background:#2d7a42">Jml Pensyarah</th>
+          <th style="background:#007b7b; border-left:2px solid #fff">Bil. Pemantau</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="left">PPPT JUSA</td><td>—</td><td>—</td><td>—</td><td>0</td><td>—</td></tr>
+        <tr><td class="left">PPPT Gred 14</td><td>—</td><td>—</td><td>—</td><td>0</td><td>—</td></tr>
+        <tr><td class="left">PPPT Gred 13</td><td>6</td><td>—</td><td>—</td><td>6</td><td>6</td></tr>
+        <tr><td class="left">PPPT Gred 12</td><td>19</td><td>1</td><td>—</td><td>20</td><td>17</td></tr>
+        <tr><td class="left">PPPT Gred 10</td><td>20</td><td>2</td><td>—</td><td>22</td><td>2</td></tr>
+        <tr><td class="left">PPPT Gred 9</td><td>6</td><td>—</td><td>—</td><td>6</td><td>—</td></tr>
+        <tr><td class="left">Pensyarah Kontrak</td><td>—</td><td>—</td><td>—</td><td>0</td><td>—</td></tr>
+        <tr><td class="left">Pensyarah Sambilan</td><td>—</td><td>—</td><td>—</td><td>0</td><td>—</td></tr>
+      </tbody>
+      <tfoot>
+        <tr class="tbl-foot">
+          <td class="left">JUMLAH</td>
+          <td>51</td><td>3</td><td>0</td><td>54</td>
+          <td>25</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+</div><!-- /panel-bahagianAB -->
+
+<!-- ══ PANEL 3: BAHAGIAN C ══ -->
+<div class="section-panel" id="panel-bahagianC">
+<div class="section-title">&#9679; Bahagian C — Analisis Skor Domain</div>
+<div class="domain-chart-grid">
+
+  <!-- Kiri: Radar Chart -->
+  <div class="card">
+    <div class="card-title">Purata Peratusan Skor Per Domain (Carta Radar)</div>
+    <div class="radar-wrap">
+      <svg id="radarSvg" width="320" height="300" viewBox="0 0 320 300"></svg>
+    </div>
+  </div>
+
+  <!-- Kanan: Donut Charts -->
+  <div class="card">
+    <div class="card-title">Taburan Skor Setiap Domain — Baik (≥80%) vs Perlu Perhatian (&lt;80%)</div>
+    <div class="donut-row" id="donutRow"></div>
+  </div>
+</div>
+
+<!-- Jadual taburan band skor -->
+<div class="card" style="margin-top:16px">
+  <div class="card-title">Jadual Taburan Bilangan Pensyarah Mengikut Band Skor Per Domain</div>
+  <div class="tbl-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th class="left">Domain</th>
+          <th style="background:#7b0000">&lt;50%</th>
+          <th style="background:#b03000">50–59%</th>
+          <th style="background:#c06000">60–69%</th>
+          <th style="background:#8a7300;color:#fff">70–79%</th>
+          <th style="background:#2d7a42">80–89%</th>
+          <th style="background:#1a5c2a">90–100%</th>
+          <th>Jumlah</th>
+          <th>Purata %</th>
+        </tr>
+      </thead>
+      <tbody id="domainTableBody"></tbody>
+    </table>
+  </div>
+</div>
+</div><!-- /panel-bahagianC -->
+
+<!-- ══ PANEL 4: PERHATIAN < 70% ══ -->
+<div class="section-panel" id="panel-perhatian">
+<div class="section-title">&#9679; Pensyarah Memerlukan Perhatian — Skor &lt; 70% Pada Mana-mana Domain</div>
+<div class="alert-grid" id="alertGrid"></div>
+<div class="card">
+  <div class="card-title">Senarai Pensyarah dengan Skor &lt; 70% Pada Sekurang-kurangnya Satu Domain</div>
+  <div class="tbl-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>Bil</th>
+          <th class="left">Nama Pensyarah</th>
+          <th class="left">Kursus</th>
+          <th>D1<br><small>(15%)</small></th>
+          <th>D2<br><small>(50%)</small></th>
+          <th>D3<br><small>(15%)</small></th>
+          <th>D4<br><small>(10%)</small></th>
+          <th>D5<br><small>(10%)</small></th>
+          <th>Skor D1-5</th>
+        </tr>
+      </thead>
+      <tbody id="below70Body"></tbody>
+    </table>
+  </div>
+  <p id="below70None" style="text-align:center;padding:18px;color:#1a5c2a;font-weight:600;display:none">
+    ✓ Tiada pensyarah yang mendapat skor &lt; 70% pada mana-mana domain.
+  </p>
+</div>
+</div><!-- /panel-perhatian -->
+
+<!-- ══ PANEL 5: BAHAGIAN E ══ -->
+<div class="section-panel" id="panel-bahagianE">
+<div class="section-title">&#9679; Bahagian E — Senarai Lengkap Data Pemantauan Individu</div>
+<div class="card">
+  <div class="card-title">Rekod Pemantauan Keseluruhan — 54 Pensyarah (Sumber: DataTrue)</div>
+  <div class="search-wrap">
+    <input type="text" id="searchBox" placeholder="🔍  Cari nama pensyarah atau nama kursus..." oninput="renderFullTable()">
+  </div>
+  <div class="tbl-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>Bil</th>
+          <th class="left" style="min-width:180px">Nama Pensyarah</th>
+          <th class="left">Kod Kursus</th>
+          <th class="left" style="min-width:160px">Nama Kursus</th>
+          <th>D1%<br><small>(15%)</small></th>
+          <th>D2%<br><small>(50%)</small></th>
+          <th>D3%<br><small>(15%)</small></th>
+          <th>D4%<br><small>(10%)</small></th>
+          <th>D5%<br><small>(10%)</small></th>
+          <th>Skor D1-5 (%)</th>
+          <th>Skor Pelajar (%)</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="fullTableBody"></tbody>
+    </table>
+  </div>
+  <p id="noResult" style="text-align:center;padding:14px;color:#57606a;display:none">Tiada rekod yang sepadan.</p>
+</div>
+</div><!-- /panel-bahagianE -->
+
+</div><!-- /container -->
+
+<script>
+// ── NAVIGATION: scroll ke bahagian + highlight tab ──
+const NAV_OFFSET = 60; // tinggi nav bar sticky
+
+function jumpTo(panelId, btn) {
+  const el = document.getElementById(panelId);
+  if (!el) return;
+  const top = el.getBoundingClientRect().top + window.scrollY - NAV_OFFSET - 8;
+  window.scrollTo({ top, behavior: 'smooth' });
+  setActiveBtn(btn);
+}
+
+function setActiveBtn(btn) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+}
+
+// Scroll-spy: highlight tab aktif semasa scroll
+const panels = ['panel-ringkasan','panel-bahagianAB','panel-bahagianC','panel-perhatian','panel-bahagianE'];
+window.addEventListener('scroll', function() {
+  const scrollY = window.scrollY + NAV_OFFSET + 20;
+  let current = panels[0];
+  panels.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && el.offsetTop <= scrollY) current = id;
+  });
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    const matches = b.getAttribute('onclick') && b.getAttribute('onclick').includes("'" + current + "'");
+    b.classList.toggle('active', matches);
+  });
+}, { passive: true });
+
+// DATA — dari sheet DataTrue (nilai peratusan sebenar, kolum H=D1%, J=D2%, L=D3%, N=D4%, P=D5%, R=Skor, S=Pelajar)
+const pensyarahData = [
+  {nama:"AFIFAH NAILAH BINTI MUHAMAD",           kod:"DFK30053", kursus:"Object Oriented Programming",                     d1:100,    d2:90,    d3:100,    d4:100,   d5:80,  skor:93,    pelajar:91.88},
+  {nama:"AMINAH BIBI BINTI BAWAMOHIDDIN",        kod:"DFC40343", kursus:"System Analysis And Design Fundamentals",         d1:100,    d2:90,    d3:100,    d4:100,   d5:100, skor:95,    pelajar:98.16},
+  {nama:"AINIE HAYATI BINTI NORUZMAN",           kod:"DFC20283", kursus:"Database Fundamentals",                           d1:100,    d2:90,    d3:100,    d4:80,    d5:80,  skor:91,    pelajar:98.9},
+  {nama:"ANIS FATIHA BINTI AHMAD SAHIMI @SHUHAIMI",kod:"DFP40443",kursus:"Full Stack Web Development",                    d1:100,    d2:90,    d3:93.33,  d4:100,   d5:100, skor:94,    pelajar:95.42},
+  {nama:"ASLIZA BINTI YACOB",                    kod:"DFC20313", kursus:"Cybersecurity Fundamentals",                      d1:100,    d2:90,    d3:100,    d4:100,   d5:80,  skor:93,    pelajar:97.8},
+  {nama:"AZRAHAYU BINTI ABDUL AZIZ",             kod:"DFC20313", kursus:"Cybersecurity Fundamentals",                      d1:100,    d2:86.6,  d3:100,    d4:90,    d5:100, skor:92.3,  pelajar:95},
+  {nama:"AZRAHAYU BT ABDUL AZIZ",                kod:"DFS30273", kursus:"Information Security",                            d1:100,    d2:83.34, d3:100,    d4:80,    d5:100, skor:89.67, pelajar:91.57},
+  {nama:"AZNUR ANUAR BIN AB AZID",               kod:"DFC10263", kursus:"Computer Architecture",                           d1:100,    d2:93.4,  d3:93.33,  d4:90,    d5:100, skor:94.7,  pelajar:93.96},
+  {nama:"BAZURI BIN AB GHANI",                   kod:"DFK30033", kursus:"Cyberpreneurship",                                 d1:100,    d2:90,    d3:86.67,  d4:100,   d5:80,  skor:95.33, pelajar:98.19},
+  {nama:"DR. SITI SALMAH BINTI MD KASSIM",       kod:"DFK20013", kursus:"Web Design Technology",                           d1:100,    d2:90,    d3:100,    d4:100,   d5:100, skor:95,    pelajar:96.25},
+  {nama:"EMY HAZLINDA BINTI MOHAMMAD RIDZWAN",   kod:"DFC20293", kursus:"Network and Data Communication",                  d1:100,    d2:93.4,  d3:86.67,  d4:80,    d5:100, skor:92.7,  pelajar:96.6},
+  {nama:"FARIDAH BINTI JAMIL",                   kod:"DFC20313", kursus:"Cybersecurity Fundamentals",                      d1:93.33,  d2:90,    d3:100,    d4:100,   d5:80,  skor:92,    pelajar:99.8},
+  {nama:"HAIZAM BINTI MOHAMAD",                  kod:"DFC10263", kursus:"Computer Architecture",                           d1:86.67,  d2:93.4,  d3:100,    d4:80,    d5:100, skor:92.7,  pelajar:90.7},
+  {nama:"IKMAL HISYAM BIN MOHAMAD PARIS",        kod:"DFC10273", kursus:"Operating Systems",                               d1:100,    d2:90,    d3:100,    d4:90,    d5:100, skor:94,    pelajar:94.3},
+  {nama:"JAMALIAH BINTI MUSA",                   kod:"DFP40433", kursus:"Business Intelligence",                           d1:100,    d2:93.34, d3:100,    d4:90,    d5:100, skor:95.67, pelajar:99.62},
+  {nama:"KAMA HAZIRA BINTI ABDUL KADIR",         kod:"DFC20293", kursus:"Network and Data Communication",                  d1:100,    d2:93.4,  d3:100,    d4:100,   d5:80,  skor:94.7,  pelajar:97.8},
+  {nama:"KHAIRUL ANUAR B. MOHD RADZALI",         kod:"DFN40503", kursus:"Embedded Internet of Things (IoT)",               d1:100,    d2:90,    d3:100,    d4:90,    d5:100, skor:94,    pelajar:96.1},
+  {nama:"MAIZATUL AKMAM BINTI ISMAIL",           kod:"DFC20313", kursus:"Cybersecurity Fundamentals",                      d1:100,    d2:96.6,  d3:100,    d4:90,    d5:100, skor:97.3,  pelajar:97.4},
+  {nama:"MAZNITA BINTI MOHAMED FIKRI",           kod:"DFK50093", kursus:"Computer Network Security",                       d1:100,    d2:90,    d3:100,    d4:100,   d5:100, skor:95,    pelajar:93.33},
+  {nama:"MOHAMAD AIDIL BIN ABDUL GHANI",         kod:"DFK30033", kursus:"Cyberpreneurship",                                 d1:86.67,  d2:90,    d3:100,    d4:80,    d5:100, skor:92,    pelajar:91.97},
+  {nama:"MOHAMAD AKHYAR BIN MOHD NOOR",          kod:"DFK30023", kursus:"User Experience Fundamentals",                    d1:80,     d2:93.34, d3:100,    d4:90,    d5:100, skor:92.67, pelajar:97.5},
+  {nama:"MOHD ASSIDIQ B. CHE AHMAD",             kod:"DFN40543", kursus:"Enterprise Network",                              d1:100,    d2:93.34, d3:93.33,  d4:90,    d5:100, skor:94.67, pelajar:91.28},
+  {nama:"MOHD FARIZ B CHE AMAT",                 kod:"DFK40063", kursus:"Server Administration",                           d1:100,    d2:86.66, d3:100,    d4:90,    d5:100, skor:92.33, pelajar:93.09},
+  {nama:"MOHD HAMZI B. MOHD SAFIAN",             kod:"DFK40063", kursus:"Server Administration",                           d1:100,    d2:86.66, d3:100,    d4:90,    d5:100, skor:92.33, pelajar:92.88},
+  {nama:"MOHD HAZRI B. HASNAN",                  kod:"DFK30053", kursus:"Object Oriented Programming",                     d1:100,    d2:90,    d3:100,    d4:100,   d5:80,  skor:93,    pelajar:91.43},
+  {nama:"MOHD NIZAM B. KAMARULL BAHARIN",        kod:"DFS30273", kursus:"Information Security",                            d1:100,    d2:90,    d3:100,    d4:90,    d5:80,  skor:92,    pelajar:94.7},
+  {nama:"MONA BINTI AZIZAN",                     kod:"DFS40373", kursus:"Malware Analysis",                                d1:100,    d2:93.34, d3:93.33,  d4:90,    d5:100, skor:94.67, pelajar:94.57},
+  {nama:"MUHAMMAD ANWAR BIN ABDUL HALIM",        kod:"DFK50083", kursus:"Python Programming",                              d1:93.33,  d2:96.66, d3:100,    d4:90,    d5:80,  skor:94.33, pelajar:98.75},
+  {nama:"MUHAMMAD FAIZ BIN PAUZI",               kod:"DFK40073", kursus:"Cloud Computing",                                 d1:100,    d2:96.66, d3:100,    d4:90,    d5:80,  skor:95.33, pelajar:93.85},
+  {nama:"MUNIRAH BINTI AB HAMID",                kod:"DFC30333", kursus:"Ethics in Computing",                             d1:100,    d2:83.4,  d3:93.33,  d4:80,    d5:80,  skor:86.7,  pelajar:98.3},
+  {nama:"MUNIRAH BINTI ABDULLAH",                kod:"DFP40453", kursus:"Mobile Application Development",                  d1:100,    d2:90,    d3:93.33,  d4:100,   d5:100, skor:94,    pelajar:89.31},
+  {nama:"NOR ANISAH BINTI MOHD SAAD",            kod:"DFC10353", kursus:"Programming Fundamentals",                        d1:100,    d2:93.4,  d3:100,    d4:100,   d5:80,  skor:94.7,  pelajar:95.9},
+  {nama:"NOR AZIDA BINTI MANSOR",                kod:"DFP30313", kursus:"Digital Mutimedia",                               d1:100,    d2:93.34, d3:100,    d4:90,    d5:100, skor:95.67, pelajar:98.29},
+  {nama:"NOR HANANI BINTI MOHD YUSOFF",          kod:"DFC20293", kursus:"Network and Data Communication",                  d1:100,    d2:90,    d3:100,    d4:100,   d5:80,  skor:93,    pelajar:87.5},
+  {nama:"NOR HUZANI BINTI KHAMIS",               kod:"DFK30023", kursus:"User Experience Fundamentals",                    d1:93.33,  d2:100,   d3:100,    d4:100,   d5:80,  skor:97,    pelajar:97.89},
+  {nama:"NORAAZIZOM BINTI MOHD NOOR",            kod:"DFC40343", kursus:"System Analysis And Design Fundamentals",         d1:80,     d2:86.66, d3:100,    d4:90,    d5:100, skor:92.67, pelajar:95.88},
+  {nama:"NORHASLIZA BINTI MUHAMAD NOR",          kod:"DFC10353", kursus:"Programming Fundamentals",                        d1:93.33,  d2:93.4,  d3:100,    d4:100,   d5:80,  skor:93.7,  pelajar:93.4},
+  {nama:"NUR AFNI BINTI ABU HASAN",              kod:"DFP40443", kursus:"Full Stack Web Development",                      d1:93.33,  d2:96.66, d3:93.33,  d4:100,   d5:100, skor:96.33, pelajar:97.64},
+  {nama:"NUR EFFATUL FAIRUZ BINTI ZAINAL APANDI",kod:"DFC40343", kursus:"System Analysis And Design Fundamentals",         d1:100,    d2:93.34, d3:100,    d4:90,    d5:80,  skor:93.67, pelajar:93.75},
+  {nama:"NUR HAFIZA BT ABD RAHMAN",              kod:"DFP50463", kursus:"Java-Based Application Development",              d1:93.33,  d2:93.34, d3:100,    d4:100,   d5:80,  skor:93.67, pelajar:98.8},
+  {nama:"NURAINAH BINTI ABU BAKAR",              kod:"DFN40543", kursus:"Enterprise Network",                              d1:93.33,  d2:90,    d3:100,    d4:90,    d5:100, skor:93,    pelajar:95},
+  {nama:"NURUL AHMAD NIZAM B. TAHER",            kod:"DFS50383", kursus:"Digital Forensic",                                d1:93.33,  d2:90,    d3:93.33,  d4:90,    d5:80,  skor:90,    pelajar:95.67},
+  {nama:"PUTERI ROSHDAH BINTI MEGAT IBNU RASHAD",kod:"DFK20013", kursus:"Web Design Technology",                           d1:100,    d2:93.4,  d3:100,    d4:100,   d5:60,  skor:92.7,  pelajar:93.4},
+  {nama:"ROZITA BT MOHD MOKHTAR",               kod:"DFN30533", kursus:"Switching and Routing Essentials",                d1:93.33,  d2:93.34, d3:93.33,  d4:90,    d5:100, skor:93.67, pelajar:96.09},
+  {nama:"SAIFUL BAHARIN BIN HAIRUDDIN",          kod:"DFC20283", kursus:"Database Fundamentals",                           d1:93.33,  d2:90,    d3:100,    d4:100,   d5:100, skor:94,    pelajar:99.38},
+  {nama:"SHARIFAH NUR BINTI SYED ISMAIL",        kod:"DFC20293", kursus:"Network and Data Communication",                  d1:100,    d2:93.4,  d3:100,    d4:90,    d5:100, skor:95.7,  pelajar:94.5},
+  {nama:"SITI ZARIDA BINTI SYED NORDIN",         kod:"DFC20313", kursus:"Cybersecurity Fundamentals",                      d1:100,    d2:90,    d3:100,    d4:100,   d5:100, skor:95,    pelajar:94.5},
+  {nama:"SUHAINY BINTI SULAIMAN",                kod:"DFC20313", kursus:"Cybersecurity Fundamentals",                      d1:100,    d2:93.4,  d3:86.67,  d4:90,    d5:100, skor:93.7,  pelajar:100},
+  {nama:"SYEARIFAH BINTI SHAHIDAN",              kod:"DFK40063", kursus:"Server Administration",                           d1:100,    d2:86.66, d3:100,    d4:80,    d5:80,  skor:89.33, pelajar:93.29},
+  {nama:"TAJUL AZHAR BIN MOHD TAJUL ARIFFIN",    kod:"DFS40293", kursus:"Ethical Hacking",                                 d1:100,    d2:90,    d3:100,    d4:90,    d5:100, skor:94,    pelajar:95.68},
+  {nama:"TS. MARLINA BINTI ABDUL MANAF",         kod:"DFK30033", kursus:"Cyberpreneurship",                                 d1:86.67,  d2:100,   d3:100,    d4:100,   d5:100, skor:98,    pelajar:99.38},
+  {nama:"TS. MAZLINA BINTI MD. MUSTAFFA",        kod:"DFC40343", kursus:"System Analysis And Design Fundamentals",         d1:100,    d2:96.66, d3:100,    d4:90,    d5:100, skor:97.33, pelajar:96.81},
+  {nama:"TS. NUR SYUHADA BT. MOHAMAD",           kod:"DFN40503", kursus:"Embedded Internet of Things (IoT)",               d1:100,    d2:90,    d3:100,    d4:100,   d5:100, skor:95,    pelajar:92.63},
+  {nama:"ZALINDA BINTI IBRAHIM",                 kod:"DFC20283", kursus:"Database Fundamentals",                           d1:100,    d2:93.4,  d3:100,    d4:100,   d5:80,  skor:94.7,  pelajar:94.8}
+];
+
+// Remove exact duplicate (Mohamad Akhyar appeared twice due to data) — keep unique by nama+kod
+const seen = new Set();
+const data = pensyarahData.filter(p => {
+  const key = p.nama + p.kod;
+  if (seen.has(key)) return false;
+  seen.add(key); return true;
+});
+
+// ── KPI ──
+(function() {
+  const b80 = data.filter(p => p.skor < 80).length;
+  const b70 = data.filter(p => p.d1<70||p.d2<70||p.d3<70||p.d4<70||p.d5<70).length;
+  document.getElementById('kpiBelow80').textContent = b80;
+  document.getElementById('kpiBelow70').textContent = b70;
+})();
+
+// ── DOMAIN STATS ──
+const domainKeys  = ['d1','d2','d3','d4','d5'];
+const domainNames = [
+  'D1 – Perancangan PdP (15%)',
+  'D2 – Instruksional (50%)',
+  'D3 – Kompetensi & Profesionalisma (15%)',
+  'D4 – Pengurusan Kelas (10%)',
+  'D5 – Pemerkasaan BI dalam PdP (10%)'
+];
+const domainShort = ['D1','D2','D3','D4','D5'];
+
+function getBands(key) {
+  const bands = [0,0,0,0,0,0]; // <50, 50-59, 60-69, 70-79, 80-89, 90-100
+  data.forEach(p => {
+    const v = p[key];
+    if      (v < 50)  bands[0]++;
+    else if (v < 60)  bands[1]++;
+    else if (v < 70)  bands[2]++;
+    else if (v < 80)  bands[3]++;
+    else if (v < 90)  bands[4]++;
+    else              bands[5]++;
+  });
+  return bands;
+}
+function getAvg(key) { return data.reduce((s,p)=>s+p[key],0)/data.length; }
+
+// ── DOMAIN TABLE ──
+const bandLabels = ['<50%','50–59%','60–69%','70–79%','80–89%','90–100%'];
+const tbody = document.getElementById('domainTableBody');
+domainKeys.forEach((k,i) => {
+  const bands = getBands(k);
+  const avg   = getAvg(k);
+  const avgCls = avg >= 80 ? 'cell-good' : avg >= 70 ? 'cell-warn' : 'cell-danger';
+  const cells = bands.map(v => `<td>${v||'—'}</td>`).join('');
+  tbody.innerHTML += `<tr>
+    <td class="left">${domainNames[i]}</td>
+    ${cells}
+    <td><strong>${data.length}</strong></td>
+    <td class="${avgCls}"><strong>${avg.toFixed(1)}%</strong></td>
+  </tr>`;
+});
+
+// ── RADAR CHART ──
+(function drawRadar() {
+  const svg    = document.getElementById('radarSvg');
+  const cx=160, cy=150, r=110, n=5;
+  const avgs   = domainKeys.map(k => getAvg(k));
+  const colors = ['#2E75B6','#70AD47','#ED7D31','#9966CC','#00897b'];
+
+  // Grid rings
+  [0.25,0.5,0.75,1].forEach(frac => {
+    const pts = Array.from({length:n},(_,i)=>{
+      const a = (Math.PI*2*i/n)-Math.PI/2;
+      return [(cx+r*frac*Math.cos(a)).toFixed(1),(cy+r*frac*Math.sin(a)).toFixed(1)];
+    });
+    const d = pts.map((p,i)=>(i?'L':'M')+p.join(',')).join(' ')+'Z';
+    const el = document.createElementNS('http://www.w3.org/2000/svg','path');
+    el.setAttribute('d',d);
+    el.setAttribute('fill','none');
+    el.setAttribute('stroke','#d0d7de');
+    el.setAttribute('stroke-width','1');
+    svg.appendChild(el);
+  });
+
+  // Axes
+  for (let i=0;i<n;i++) {
+    const a = (Math.PI*2*i/n)-Math.PI/2;
+    const x = cx+r*Math.cos(a), y = cy+r*Math.sin(a);
+    const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',cx); line.setAttribute('y1',cy);
+    line.setAttribute('x2',x.toFixed(1)); line.setAttribute('y2',y.toFixed(1));
+    line.setAttribute('stroke','#c8d4e0'); line.setAttribute('stroke-width','1');
+    svg.appendChild(line);
+  }
+
+  // Data polygon
+  const pts = avgs.map((v,i)=>{
+    const frac = v/100;
+    const a = (Math.PI*2*i/n)-Math.PI/2;
+    return [(cx+r*frac*Math.cos(a)).toFixed(1),(cy+r*frac*Math.sin(a)).toFixed(1)];
+  });
+  const poly = document.createElementNS('http://www.w3.org/2000/svg','polygon');
+  poly.setAttribute('points', pts.map(p=>p.join(',')).join(' '));
+  poly.setAttribute('fill','rgba(46,117,182,0.25)');
+  poly.setAttribute('stroke','#1F4E79');
+  poly.setAttribute('stroke-width','2');
+  svg.appendChild(poly);
+
+  // Dots + labels
+  avgs.forEach((v,i) => {
+    const a = (Math.PI*2*i/n)-Math.PI/2;
+    const frac = v/100;
+    const x = cx+r*frac*Math.cos(a), y = cy+r*frac*Math.sin(a);
+    const lx = cx+(r+22)*Math.cos(a), ly = cy+(r+22)*Math.sin(a);
+
+    const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    circle.setAttribute('cx',x.toFixed(1)); circle.setAttribute('cy',y.toFixed(1));
+    circle.setAttribute('r','5');
+    circle.setAttribute('fill',colors[i]); circle.setAttribute('stroke','#fff'); circle.setAttribute('stroke-width','1.5');
+    svg.appendChild(circle);
+
+    const text = document.createElementNS('http://www.w3.org/2000/svg','text');
+    text.setAttribute('x',lx.toFixed(1)); text.setAttribute('y',ly.toFixed(1));
+    text.setAttribute('text-anchor','middle'); text.setAttribute('dominant-baseline','middle');
+    text.setAttribute('font-size','11'); text.setAttribute('font-weight','700');
+    text.setAttribute('fill',colors[i]);
+    text.textContent = domainShort[i]+' '+v.toFixed(1)+'%';
+    svg.appendChild(text);
+  });
+})();
+
+// ── DONUT CHARTS ──
+(function buildDonuts() {
+  const container = document.getElementById('donutRow');
+  domainKeys.forEach((k,i) => {
+    const good = data.filter(p=>p[k]>=80).length;
+    const bad  = data.length - good;
+    const pct  = (good/data.length*100).toFixed(0);
+    const r=44, cx=55, cy=55, stroke=12;
+    const circumf = 2*Math.PI*r;
+    const goodArc = circumf*(good/data.length);
+
+    const colors = ['#2E75B6','#70AD47','#ED7D31','#9966CC','#00897b'];
+    const svg = `<svg width="110" height="110" viewBox="0 0 110 110">
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#e5e7eb" stroke-width="${stroke}"/>
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${colors[i]}" stroke-width="${stroke}"
+        stroke-dasharray="${goodArc.toFixed(1)} ${circumf.toFixed(1)}"
+        stroke-dashoffset="${(circumf/4).toFixed(1)}"
+        stroke-linecap="round"/>
+      <text x="${cx}" y="${cy-5}" text-anchor="middle" font-size="16" font-weight="800" fill="#1F4E79">${pct}%</text>
+      <text x="${cx}" y="${cy+13}" text-anchor="middle" font-size="9" fill="#57606a">≥80%</text>
+    </svg>`;
+
+    container.innerHTML += `<div class="donut-item">
+      ${svg}
+      <div class="donut-label">${domainShort[i]}</div>
+      <div class="donut-sub">${good} Baik / ${bad} Perhatian</div>
+    </div>`;
+  });
+})();
+
+// ── BELOW 70% ──
+(function buildBelow70() {
+  const below = data.filter(p=>p.d1<70||p.d2<70||p.d3<70||p.d4<70||p.d5<70);
+  const failCounts = domainKeys.map(k => below.filter(p=>p[k]<70).length);
+
+  const ag = document.getElementById('alertGrid');
+  ag.innerHTML = `
+    <div class="alert-card red">
+      <div class="a-val">${below.length}</div>
+      <div class="a-label">Pensyarah dengan skor &lt;70% pada sekurang-kurangnya satu domain</div>
+    </div>` +
+    domainKeys.map((k,i)=>`
+    <div class="alert-card orange">
+      <div class="a-val">${failCounts[i]}</div>
+      <div class="a-label">${domainShort[i]} – ${['Perancangan PdP','Instruksional','Kompetensi','Pengurusan Kelas','Pemerkasaan BI'][i]} &lt;70%</div>
+    </div>`).join('');
+
+  const tbody = document.getElementById('below70Body');
+  if (!below.length) {
+    tbody.closest('table').style.display='none';
+    document.getElementById('below70None').style.display='block';
+    return;
+  }
+  below.forEach((p,idx) => {
+    function dc(v){ return v<70?'cell-danger':v<80?'cell-warn':'cell-good'; }
+    tbody.innerHTML += `<tr>
+      <td>${idx+1}</td>
+      <td class="left">${p.nama}</td>
+      <td class="left">${p.kursus}</td>
+      <td class="${dc(p.d1)}">${p.d1.toFixed(1)}%</td>
+      <td class="${dc(p.d2)}">${p.d2.toFixed(1)}%</td>
+      <td class="${dc(p.d3)}">${p.d3.toFixed(1)}%</td>
+      <td class="${dc(p.d4)}">${p.d4.toFixed(1)}%</td>
+      <td class="${dc(p.d5)}">${p.d5.toFixed(1)}%</td>
+      <td class="${p.skor>=80?'cell-good':'cell-warn'}">${p.skor.toFixed(1)}%</td>
+    </tr>`;
+  });
+})();
+
+// ── FULL TABLE ──
+function renderFullTable() {
+  const q = document.getElementById('searchBox').value.toLowerCase();
+  const filtered = data.filter(p=>p.nama.toLowerCase().includes(q)||p.kursus.toLowerCase().includes(q)||p.kod.toLowerCase().includes(q));
+  const tbody = document.getElementById('fullTableBody');
+  document.getElementById('noResult').style.display = filtered.length?'none':'block';
+  tbody.innerHTML = '';
+  filtered.forEach((p,i) => {
+    function dc(v){ return v<70?'cell-danger':v<80?'cell-warn':'cell-good'; }
+    const st = p.skor>=80
+      ? '<span class="badge badge-good">Baik</span>'
+      : '<span class="badge badge-follow">Susulan</span>';
+    tbody.innerHTML += `<tr>
+      <td>${i+1}</td>
+      <td class="left">${p.nama}</td>
+      <td class="left">${p.kod}</td>
+      <td class="left">${p.kursus}</td>
+      <td class="${dc(p.d1)}">${p.d1.toFixed(1)}%</td>
+      <td class="${dc(p.d2)}">${p.d2.toFixed(1)}%</td>
+      <td class="${dc(p.d3)}">${p.d3.toFixed(1)}%</td>
+      <td class="${dc(p.d4)}">${p.d4.toFixed(1)}%</td>
+      <td class="${dc(p.d5)}">${p.d5.toFixed(1)}%</td>
+      <td class="${p.skor>=80?'cell-good':'cell-warn'}">${p.skor.toFixed(1)}%</td>
+      <td>${p.pelajar.toFixed(1)}%</td>
+      <td>${st}</td>
+    </tr>`;
+  });
+}
+renderFullTable();
+</script>
+</body>
+</html>
